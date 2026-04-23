@@ -13,7 +13,7 @@ FROM node:22-alpine3.20
 WORKDIR /app
 
 # Add curl for healthcheck
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl=7.88.1-r0
 
 # Setup user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
