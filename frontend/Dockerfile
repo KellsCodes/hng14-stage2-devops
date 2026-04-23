@@ -12,6 +12,9 @@ FROM node:25-alpine3.22
 
 WORKDIR /app
 
+# patch known vulnerabilities in the base image
+RUN apk update && apk upgrade --no-cache 
+
 # Add curl for healthcheck
 # hadolint ignore=DL3008
 RUN apk add --no-cache curl
