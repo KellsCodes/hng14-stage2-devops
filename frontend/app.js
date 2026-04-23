@@ -51,7 +51,7 @@ app.get("/health", async (req, res) => {
   try {
     res.status(200).send("OK");
   } catch (err) {
-    res.status(500).json({ error: "something went wrong" });
+    res.status(500).json({ error: err.message || "something went wrong" });
   }
 });
 
