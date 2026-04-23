@@ -49,7 +49,7 @@ app.get("/status/:id", async (req, res) => {
 
 app.get("/health", async (req, res) => {
   try {
-    res.json({ message: "healthy" });
+    res.status(200).send("OK");
   } catch (err) {
     res.status(500).json({ error: "something went wrong" });
   }
