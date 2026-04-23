@@ -1,0 +1,76 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis_db
+    networks:
+      - stage2_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '${CPU_LIMIT}'
+          memory: '${MEM_LIMIT}'
+
+  api:
+    build:
+      context: ./api
+    container_name: python_api
+    networks:
+      - stage2_network
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+    # Wait for healthy dependency
+    depends_on:
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '${CPU_LIMIT}'
+          memory: '${MEM_LIMIT}'
+
+  worker:
+    build:
+      context: ./worker
+    container_name: python_worker
+    networks:
+      - stage2_network
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+    depends_on:
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '${CPU_LIMIT}'
+          memory: '${MEM_LIMIT}'
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: node_frontend
+    networks:
+      - stage2_network
+    ports:
+      - "${FRONTEND_PORT}:3000"
+    environment:
+      - API_URL=${API_URL}
+    # Wait for healthy dependency
+    depends_on:
+      api:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '${CPU_LIMIT}'
+          memory: '${MEM_LIMIT}'
+
+# Requirement: Named internal network
+networks:
+  stage2_network:
+    driver: bridge
