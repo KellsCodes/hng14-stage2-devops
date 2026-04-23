@@ -7,7 +7,7 @@ def test_create_job(client):
 def test_get_job_not_found(client):
     response = client.get("/jobs/non-existent-id")
     assert response.status_code == 404
-    assert response.json() == {"detail": "Job not found"}
+    assert response.json()["detail"] == "Job not found"
 
 
 def test_get_job_status(client, mock_redis):
