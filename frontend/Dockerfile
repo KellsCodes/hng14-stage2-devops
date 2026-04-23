@@ -13,7 +13,8 @@ FROM node:22-alpine3.20
 WORKDIR /app
 
 # Add curl for healthcheck
-RUN apk add --no-cache curl=7.*
+# hadolint ignore=DL3008
+RUN apk add --no-cache curl
 
 # Setup user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup

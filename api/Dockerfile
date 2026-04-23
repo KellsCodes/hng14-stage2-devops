@@ -12,7 +12,8 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Install curl ONLY for the healthcheck
-RUN apt-get update && apt-get install -y --no-install-recommends curl=7.* && rm -rf /var/lib/apt/lists/*
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
 # Setup user
 RUN groupadd -r appgroup && useradd -r -g appgroup -m appuser

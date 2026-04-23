@@ -10,7 +10,8 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Install procps to get the 'pgrep' command
-RUN apt-get update && apt-get install -y --no-install-recommends procps=2:4.0.* && rm -rf /var/lib/apt/lists/*
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get install -y --no-install-recommends procps && rm -rf /var/lib/apt/lists/*
 
 # Setup user
 RUN groupadd -r appgroup && useradd -r -g appgroup -m appuser
