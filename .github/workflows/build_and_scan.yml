@@ -1,0 +1,54 @@
+name: Module 3 & 4 - Build and Security
+
+on:
+  workflow_run:
+    workflows: [ "Module 2 - Unit Tests" ]
+    types: [ completed ]
+
+jobs:
+  build-and-scan:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    # Required for the local registry to be accessible across steps
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+
+    strategy:
+      matrix:
+        service: [ api, worker, frontend ]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Build and Push to Local Registry
+      - name: Build and Push
+        run: |
+          REGISTRY="localhost:5000"
+          SHA=${{ github.sha }}
+          IMAGE=$REGISTRY/${{ matrix.service }}
+
+          docker build -t $IMAGE:$SHA -t $IMAGE:latest ./${{ matrix.service }}
+          docker push $IMAGE:$SHA
+          docker push $IMAGE:latest
+
+      # Security Scan (Trivy)
+      - name: Run Trivy Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "localhost:5000/${{ matrix.service }}:latest"
+          format: "sarif"
+          output: "trivy-results-${{ matrix.service }}.sarif"
+          severity: "CRITICAL"
+          exit-code: "1" # Fails the job if Criticals are found
+
+      # Upload SARIF Artifact
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() # Upload even if scan fails to show findings
+        with:
+          sarif_file: "trivy-results-${{ matrix.service }}.sarif"
