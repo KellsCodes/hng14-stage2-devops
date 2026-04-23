@@ -12,7 +12,7 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Install curl ONLY for the healthcheck
-RUN apt-get update && apt-get install -y --no-install-recommends curl=7.88.1-10+deb12u4 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends curl=7.* && rm -rf /var/lib/apt/lists/*
 
 # Setup user
 RUN groupadd -r appgroup && useradd -r -g appgroup -m appuser
