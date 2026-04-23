@@ -1,14 +1,14 @@
 # Stage 1: Build
-FROM node:25-alpine3.20 AS builder
+FROM node:22-alpine3.20 AS builder
 
 WORKDIR /build
 
 COPY package*.json ./
 
-RUN npm ci --legacy-peer-deps
+RUN npm ci --only=production --legacy-peer-deps
 
 # Stage 2: Production
-FROM node:25-alpine3.20
+FROM node:22-alpine3.20
 
 WORKDIR /app
 
@@ -19,8 +19,8 @@ RUN apk add --no-cache curl
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # Copy node_modules directly to the app folder
-COPY --from=builder /build/node_modules ./node_modules
-COPY --chown=appuser:appgroup ./api .
+COPY --from=builder --chown=appuser:appgroup /build/node_modules ./node_modules
+COPY --chown=appuser:appgroup . .
 
 USER appuser
 EXPOSE 3000
