@@ -10,13 +10,16 @@ r = redis.Redis(host=REDIS_HOST, port=6379, decode_responses=True)
 
 keep_running = True
 
+
 def handle_signal(signum, frame):
     global keep_running
     print("Received shutdown signal, Finishing current job...")
     keep_running = False
 
+
 signal.signal(signal.SIGTERM, handle_signal)
 signal.signal(signal.SIGINT, handle_signal)
+
 
 def process_job(job_id):
     try:
@@ -36,7 +39,7 @@ while keep_running:
         if job_id:
             process_job(job_id)
     except redis.ConnectionError:
-        print(f"Redis connection error, retrying in 5 seconds...")
+        print("Redis connection error, retrying in 5 seconds...")
         time.sleep(5)
     except Exception as e:
         print(f"Error in worker loop: {e}")
