@@ -9,6 +9,9 @@ jobs:
   build-and-scan:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
 
     # Required for the local registry to be accessible across steps
     services:
