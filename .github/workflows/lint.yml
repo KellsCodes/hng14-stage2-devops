@@ -1,4 +1,4 @@
-name: Linting
+name: Module 1 - Linting
 
 on: [push, pull_request]
 
