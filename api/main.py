@@ -27,3 +27,8 @@ def get_job(job_id: str):
     if status is None:
         return {"error": "not found"}, 404
     return {"job_id": job_id, "status": status}
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
