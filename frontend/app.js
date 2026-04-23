@@ -3,7 +3,7 @@ const axios = require('axios');
 const path = require('path');
 const app = express();
 
-const API_URL = "http://localhost:8000";
+const API_URL = process.env.API_URL || "http://localhost:8000";
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'views')));
@@ -11,8 +11,9 @@ app.use(express.static(path.join(__dirname, 'views')));
 app.post('/submit', async (req, res) => {
   try {
     const response = await axios.post(`${API_URL}/jobs`);
-    res.json(response.data);
+    res.status(201).json(response.data);
   } catch (err) {
+    console.error('Job submission failed:', err.message);
     res.status(500).json({ error: "something went wrong" });
   }
 });
@@ -22,7 +23,11 @@ app.get('/status/:id', async (req, res) => {
     const response = await axios.get(`${API_URL}/jobs/${req.params.id}`);
     res.json(response.data);
   } catch (err) {
-    res.status(500).json({ error: "something went wrong" });
+    if (err.response) {
+      res.status(err.response.status).json({ error: err.response.data });
+    } else {
+      res.status(500).json({ error: "something went wrong" });
+    }
   }
 });
 
