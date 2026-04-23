@@ -11,14 +11,14 @@ const PORT = process.env.PORT || 3000;
 const httpAgent = new http.Agent({
   keepAlive: true,
   maxSockets: 100, // Never allow more than 100 active sockets
-  family: 4 // Use IPv4 to avoid localhost resolution loops
+  family: 4, // Use IPv4 to avoid localhost resolution loops
 });
 
 const api = axios.create({
   baseURL: API_URL,
   httpAgent,
   timeout: 5000, // Force timeout after 5s to release listeners
-  proxy: false // Prevents axios from adding extra proxy-related listeners
+  proxy: false, // Prevents axios from adding extra proxy-related listeners
 });
 
 app.use(express.json());
@@ -44,6 +44,14 @@ app.get("/status/:id", async (req, res) => {
     } else {
       res.status(500).json({ error: "something went wrong" });
     }
+  }
+});
+
+app.get("/health", async (req, res) => {
+  try {
+    res.json({ message: "healthy" });
+  } catch (err) {
+    res.status(500).json({ error: "something went wrong" });
   }
 });
 
