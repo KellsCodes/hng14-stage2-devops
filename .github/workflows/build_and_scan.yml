@@ -48,6 +48,7 @@ jobs:
           severity: "CRITICAL"
           ignore-unfixed: true # Skips items with no published vendor fix yet
           trivyignores: ".trivyignore"
+          exit-code: "1" # Fails the job if Criticals are found
 
       # Security Scan (Trivy)
       - name: Run Trivy Scan
