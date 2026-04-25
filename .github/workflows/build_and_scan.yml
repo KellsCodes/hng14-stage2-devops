@@ -49,6 +49,7 @@ jobs:
           ignore-unfixed: true # Skips items with no published vendor fix yet
           trivyignores: ".trivyignore"
           exit-code: "1" # Fails the job if Criticals are found
+          limit-severities-for-sarif: true
 
       # Security Scan (Trivy)
       - name: Run Trivy Scan
@@ -61,6 +62,7 @@ jobs:
           ignore-unfixed: true # Skips items with no published vendor fix yet
           exit-code: "1" # Fails the job if Criticals are found
           trivyignores: ".trivyignore"
+          limit-severities-for-sarif: true
 
       # Upload SARIF Artifact
       - name: Upload SARIF
