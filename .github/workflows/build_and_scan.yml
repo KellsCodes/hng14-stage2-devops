@@ -50,7 +50,6 @@ jobs:
           ignore-unfixed: true # Skips items with no published vendor fix yet
           exit-code: "1" # Fails the job if Criticals are found
           limit-severities-for-sarif: true
-          # trivyignores: ".trivyignore"
 
       # Upload SARIF Artifact
       - name: Upload SARIF
