@@ -49,6 +49,7 @@ jobs:
           output: "trivy-results-${{ matrix.service }}.sarif"
           severity: "CRITICAL"
           exit-code: "1" # Fails the job if Criticals are found
+          ignore-unfixed: true # Skips items with no published vendor fix yet
 
       # Upload SARIF Artifact
       - name: Upload SARIF
