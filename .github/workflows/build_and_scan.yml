@@ -44,25 +44,13 @@ jobs:
         uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: "localhost:5000/${{ matrix.service }}:latest"
-          format: "table"
-          severity: "CRITICAL"
-          ignore-unfixed: true # Skips items with no published vendor fix yet
-          trivyignores: ".trivyignore"
-          exit-code: "1" # Fails the job if Criticals are found
-          limit-severities-for-sarif: true
-
-      # Security Scan (Trivy)
-      - name: Run Trivy Scan
-        uses: aquasecurity/trivy-action@v0.35.0
-        with:
-          image-ref: "localhost:5000/${{ matrix.service }}:latest"
           format: "sarif"
           output: "trivy-results-${{ matrix.service }}.sarif"
           severity: "CRITICAL"
           ignore-unfixed: true # Skips items with no published vendor fix yet
           exit-code: "1" # Fails the job if Criticals are found
-          trivyignores: ".trivyignore"
           limit-severities-for-sarif: true
+          # trivyignores: ".trivyignore"
 
       # Upload SARIF Artifact
       - name: Upload SARIF
