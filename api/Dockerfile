@@ -1,5 +1,5 @@
 # Stage 1: Build dependencies
-FROM python:3.12-slim AS builder
+FROM python:3.12-slim-bookworm AS builder
 
 WORKDIR /build
 RUN apt-get update && apt-get install -y  --no-install-recommends gcc python3-dev
@@ -8,7 +8,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # Stage 2: Final Runtime
-FROM python:3.12-slim
+FROM python:3.12-slim-bookworm
 WORKDIR /app
 
 # Install curl ONLY for the healthcheck
