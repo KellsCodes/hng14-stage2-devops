@@ -40,7 +40,6 @@ jobs:
           docker push $IMAGE:latest
 
       # Security Scan (Trivy)
-
       - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@master
         with:
@@ -48,8 +47,8 @@ jobs:
           format: "sarif"
           output: "trivy-results-${{ matrix.service }}.sarif"
           severity: "CRITICAL"
-          exit-code: "1" # Fails the job if Criticals are found
           ignore-unfixed: true # Skips items with no published vendor fix yet
+          exit-code: "1" # Fails the job if Criticals are found
 
       # Upload SARIF Artifact
       - name: Upload SARIF
