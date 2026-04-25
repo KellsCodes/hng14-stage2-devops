@@ -1,35 +1,122 @@
-name: Module 6 - Deploy
+name: Full Pipeline
 
 on:
-    workflow_run:
-        workflows: [ "Module 5 - Integration Test" ]
-        types: [ completed ]
+    push:
+        branches:
+            - main
 
 jobs:
-    deploy:
-        # Only run if Module 5 passed AND it's the main branch
-        if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    # 1. LINT STAGE
+    lint:
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout Code
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
+            - name: Python Lint
+              run: |
+                  pip install flake8
+                  flake8 .
+            - name: JS Lint
+              run: |
+                  npm install eslint eslint-plugin-import --save-dev
+                  npx eslint .
+            - name: Docker Lint
+              uses: hadolint/hadolint-action@v3.1.0
+              with:
+                  recursive: true
+                  ignore: DL3008,DL3018
 
-            # 1. Setup environment variables
-            - name: Create .env file
+    # 2. TEST STAGE
+    test:
+        needs: lint # Blocks until lint completes
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Run Pytest
+              run: |
+                  pip install fastapi uvicorn redis fakeredis pytest pytest-cov httpx
+                  export PYTHONPATH=$PYTHONPATH:.
+                  pytest --cov=api --cov-report=xml tests/
+            - name: Upload Coverage
+              uses: actions/upload-artifact@v4
+              with:
+                  name: coverage-report
+                  path: coverage.xml
+
+    # 3 & 4. BUILD & SECURITY SCAN STAGE
+    build-and-scan:
+        needs: test # Blocks until test completes
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                service: [ api, worker, frontend ]
+        services:
+            registry:
+                image: registry:2
+                ports:
+                    - 5000:5000
+        steps:
+            - uses: actions/checkout@v4
+            - name: Build and Push
+              run: |
+                  IMAGE=localhost:5000/${{ matrix.service }}
+                  docker build -t $IMAGE:latest ./${{ matrix.service }}
+                  docker push $IMAGE:latest
+            - name: Run Trivy Scan
+              uses: aquasecurity/trivy-action@v0.35.0
+              with:
+                  image-ref: "localhost:5000/${{ matrix.service }}:latest"
+                  format: "sarif"
+                  output: "trivy-results-${{ matrix.service }}.sarif"
+                  severity: "CRITICAL"
+                  ignore-unfixed: true
+                  exit-code: "1"
+                  limit-severities-for-sarif: true
+            - name: Upload SARIF
+              uses: github/codeql-action/upload-sarif@v4
+              if: always()
+              with:
+                  sarif_file: "trivy-results-${{ matrix.service }}.sarif"
+
+    # 5. INTEGRATION TEST STAGE
+    integration-test:
+        needs: build-and-scan # Blocks until scan completes
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Create .env
               run: |
                   echo "REDIS_HOST=${{ vars.REDIS_HOST }}" >> .env
                   echo "API_URL=${{ vars.API_URL }}" >> .env
                   echo "FRONTEND_PORT=${{ vars.FRONTEND_PORT }}" >> .env
                   echo "MEM_LIMIT=${{ vars.MEM_LIMIT }}" >> .env
                   echo "CPU_LIMIT=${{ vars.CPU_LIMIT }}" >> .env
+            - name: Start Stack
+              run: docker compose up -d --build
+            - name: Run Integration Script
+              run: |
+                  chmod +x tests/integration.sh
+                  ./tests/integration.sh
+            - name: Tear Down
+              if: always()
+              run: docker compose down -v
 
-            # 2. Build target image
+    # 6. DEPLOY STAGE
+    deploy:
+        needs: integration-test # Blocks until integration completes
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Create .env
+              run: |
+                  echo "REDIS_HOST=${{ vars.REDIS_HOST }}" >> .env
+                  echo "API_URL=${{ vars.API_URL }}" >> .env
+                  echo "FRONTEND_PORT=${{ vars.FRONTEND_PORT }}" >> .env
+                  echo "MEM_LIMIT=${{ vars.MEM_LIMIT }}" >> .env
+                  echo "CPU_LIMIT=${{ vars.CPU_LIMIT }}" >> .env
             - name: Build Target Image
               run: |
                   cd frontend
                   docker build -t node_frontend:latest .
-
-            # 3. Execute the rolling update script
             - name: Execute Scripted Rolling Update
               run: |
                   chmod +x tests/rollout.sh
