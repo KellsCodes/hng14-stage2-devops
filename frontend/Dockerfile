@@ -3,7 +3,7 @@ FROM node:22-alpine3.20 AS builder
 
 WORKDIR /build
 
-COPY package*.json bun*.lock* ./
+COPY package*.json ./
 
 RUN npm install --omit=dev --legacy-peer-deps
 
