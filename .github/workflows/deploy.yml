@@ -1,0 +1,37 @@
+name: Module 6 - Scripted Deploy
+
+on:
+    workflow_run:
+        workflows: [ "Module 5 - Integration Test" ]
+        types: [ completed ]
+
+jobs:
+    deploy:
+        # Rule 1: Only run if Module 5 passed AND it's the main branch
+        if: ${{ github.event.workflow_run.conclusion == 'success' && github.ref ==
+            'refs/heads/main' }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+
+            # 1. Setup environment variables from Compose instruction
+            - name: Create .env file
+              run: |
+                  echo "REDIS_HOST=${{ vars.REDIS_HOST }}" >> .env
+                  echo "API_URL=${{ vars.API_URL }}" >> .env
+                  echo "FRONTEND_PORT=${{ vars.FRONTEND_PORT }}" >> .env
+                  echo "MEM_LIMIT=${{ vars.MEM_LIMIT }}" >> .env
+                  echo "CPU_LIMIT=${{ vars.CPU_LIMIT }}" >> .env
+
+            # 2. Build the specific image targeted by the rollout script
+            - name: Build Target Image
+              run: |
+                  cd frontend
+                  docker build -t node_frontend:latest .
+
+            # 3. Execute the rolling update script
+            - name: Execute Scripted Rolling Update
+              run: |
+                  chmod +x tests/rollout.sh
+                  ./tests/rollout.sh
