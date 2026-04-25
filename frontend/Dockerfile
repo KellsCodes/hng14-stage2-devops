@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM node:25-alpine3.22 AS builder
+FROM node:22-alpine3.20 AS builder
 
 WORKDIR /build
 
@@ -8,7 +8,7 @@ COPY package*.json ./
 RUN npm install --omit=dev --legacy-peer-deps
 
 # Stage 2: Production
-FROM node:25-alpine3.22
+FROM node:22-alpine3.20
 
 WORKDIR /app
 
