@@ -1,4 +1,4 @@
-name: Module 6 - Scripted Deploy
+name: Module 6 - Deploy
 
 on:
     workflow_run:
