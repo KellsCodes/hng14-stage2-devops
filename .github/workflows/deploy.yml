@@ -95,6 +95,10 @@ jobs:
                   echo "CPU_LIMIT=${{ vars.CPU_LIMIT }}" >> .env
             - name: Start Stack
               run: docker compose up -d --build
+            - name: Wait for Healthchecks
+              run: |
+                  echo "Waiting for services to report healthy..."
+                  sleep 15
             - name: Run Integration Script
               run: |
                   chmod +x tests/integration.sh
