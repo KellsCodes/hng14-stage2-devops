@@ -21,8 +21,6 @@ jobs:
                   echo "FRONTEND_PORT=${{ vars.FRONTEND_PORT }}" >> .env
                   echo "MEM_LIMIT=${{ vars.MEM_LIMIT }}" >> .env
                   echo "CPU_LIMIT=${{ vars.CPU_LIMIT }}" >> .env
-                  echo "=== Current .env Content ==="
-                  cat .env
 
             # 2. Bring the full stack up
             - name: Bring Stack Up
