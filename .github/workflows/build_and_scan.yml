@@ -40,12 +40,6 @@ jobs:
           docker push $IMAGE:latest
 
       # Security Scan (Trivy)
-      - name: Run Trivy Scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: "localhost:5000/${{ matrix.service }}:latest"
-          format: "table"
-          severity: "CRITICAL"
 
       - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@master
