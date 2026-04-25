@@ -1,0 +1,5 @@
+# Ignore path-to-regexp ReDoS vulnerability
+CVE-2024-43796
+CVE-2024-43800
+# Ignore negotiator vulnerability
+CVE-2024-45296
