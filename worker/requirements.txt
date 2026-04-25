@@ -1,2 +1,2 @@
 async-timeout==5.0.1
-redis==7.4.0
+redis==5.0.8
