@@ -47,7 +47,7 @@ jobs:
           format: "table"
           severity: "CRITICAL"
           ignore-unfixed: true # Skips items with no published vendor fix yet
-          ignorefile: .trivyignore # Optional: Use a .trivyignore file to exclude specific vulnerabilities
+          trivyignores: ".trivyignore"
 
       # Security Scan (Trivy)
       - name: Run Trivy Scan
@@ -59,7 +59,7 @@ jobs:
           severity: "CRITICAL"
           ignore-unfixed: true # Skips items with no published vendor fix yet
           exit-code: "1" # Fails the job if Criticals are found
-          ignorefile: .trivyignore # Optional: Use a .trivyignore file to exclude specific vulnerabilities
+          trivyignores: ".trivyignore"
 
       # Upload SARIF Artifact
       - name: Upload SARIF
