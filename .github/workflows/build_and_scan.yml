@@ -41,7 +41,7 @@ jobs:
 
       # Security Scan (Trivy)
       - name: Run Trivy Scan
-        uses: aquasecurity/trivy-action@57a97c7d6c3c5ed83ea35048d0df62bc2b57b983
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: "localhost:5000/${{ matrix.service }}:latest"
           format: "table"
@@ -50,7 +50,7 @@ jobs:
 
       # Security Scan (Trivy)
       - name: Run Trivy Scan
-        uses: aquasecurity/trivy-action@57a97c7d6c3c5ed83ea35048d0df62bc2b57b983
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: "localhost:5000/${{ matrix.service }}:latest"
           format: "sarif"
