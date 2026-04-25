@@ -46,6 +46,9 @@ jobs:
     build-and-scan:
         needs: test # Blocks until test completes
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            security-events: write
         strategy:
             matrix:
                 service: [ api, worker, frontend ]
