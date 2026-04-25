@@ -8,9 +8,5 @@
   "dependencies": {
     "axios": "1.15.2",
     "express": "^5.2.1"
-  },
-  "overrides": {
-    "path-to-regexp": "^0.1.13",
-    "negotiator": "0.6.4"
   }
 }
